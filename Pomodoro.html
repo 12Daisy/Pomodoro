@@ -5,10 +5,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./fontawesome-free-5.10.1-web/css/all.css">
     <title>Pomodoro</title>
 </head>
 
 <style>
+    button.next {
+        background: white;
+        border-radius: 10px;
+        border: none;
+        padding: 15px 30px;
+        margin-left: 9em;
+        margin-top: 2em;
+        left: 50px;
+        font-size: 34px;
+        font-family: 'Muli';
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: 1s ease all;
+        line-height: 1;
+        display: flex;
+    }
+    
+    button:hover {
+        transform: scale(1.01);
+        background: #aeb1df;
+    }
+    
+    .icon {
+        margin-right: 8px;
+    }
+    
+    .reset {
+        font-size: 12x;
+        padding: 8px 16px;
+        margin: 100px auto 0;
+    }
+    
+    .countdown {
+        position: relative;
+        display: block;
+        text-indent: -999px;
+        overflow: hidden;
+        margin-left: 6px;
+    }
+    
+    .numbers {
+        position: absolute;
+        top: 0;
+        left: 0;
+        text-align: center;
+        transition: 0.3s ease transform;
+        text-indent: 0;
+    }
+    
+    body {
+        align-items: center;
+        justify-content: center;
+        background-color: #3ca8de;
+    }
+    
     #container {
         border: 1px solid #333;
         border-radius: 20px;
@@ -77,27 +135,67 @@
 </style>
 
 <body>
-    <div id="pomodoro-app">
-        <div id="container">
-            <div id="timer">
-                <div id="time">
-                    <span id="minutes">25</span>
-                    <span id="colon">:</span>
-                    <span id="seconds">00</span>
-                </div>
-                <div id="filler"></div>
-            </div>
+    <div>
+        <div style=" margin-left: 35em; display: flex; ;">
+            <form>
+                <label for="usertime">Duration</label><br>
+                <input type="number" id="usertime" name="usertime" value="">
+            </form>
+        </div>
 
-            <div id="buttons">
-                <button id="work">Work</button>
-                <button id="shortBreak">Short Break</button>
-                <button id="longBreak">Long Break</button>
-                <button id="stop">Stop</button>
+        <div id="pomodoro-app">
+            <div id="container">
+                <div id="timer">
+                    <div id="time">
+                        <span id="minutes">25</span>
+                        <span id="colon">:</span>
+                        <span id="seconds">00</span>
+                    </div>
+                    <div id="filler"></div>
+                </div>
+
+                <div id="buttons">
+                    <button id="work">Pomodoro</button>
+                    <button class="reset">Countdown</button>
+                </div>
             </div>
         </div>
     </div>
+    <div>
+        <button class="next">
+        <span class="icon"><i class="fas fa-angle-double-right" ></i></span>
+         Next Episode Starts in 
+     <span class="countdown">
+             10
+         <span class="numbers">
+             <span>10</span>
+             <span>9</span>
+             <span>8</span>
+             <span>7</span>
+             <span>6</span>
+             <span>5</span>
+             <span>4</span>
+             <span>3</span>
+             <span>2</span>
+             <span>1</span>
+             <span>0</span>
+         </span>
+     </span>
+ </button>
+    </div>
 
     <script>
+        function userTime() {
+            var time = document.getElementById('usertime').value;
+            if (time >= 1) {
+                normal_time = parseInt(time);
+                return normal_time;
+            } else {
+                normal_time = 25;
+                return normal_time
+            }
+        }
+
         var pomodoro = {
             started: false,
             minutes: 0,
@@ -119,15 +217,6 @@
                 document.querySelector('#work').onclick = function() {
                     self.startWork.apply(self);
                 };
-                document.querySelector('#shortBreak').onclick = function() {
-                    self.startShortBreak.apply(self);
-                };
-                document.querySelector('#longBreak').onclick = function() {
-                    self.startLongBreak.apply(self);
-                };
-                document.querySelector('#stop').onclick = function() {
-                    self.stopTimer.apply(self);
-                };
             },
             resetVariables: function(mins, secs, started) {
                 this.minutes = mins;
@@ -137,17 +226,7 @@
                 this.fillerHeight = 0;
             },
             startWork: function() {
-                this.resetVariables(25, 0, true);
-            },
-            startShortBreak: function() {
-                this.resetVariables(5, 0, true);
-            },
-            startLongBreak: function() {
-                this.resetVariables(15, 0, true);
-            },
-            stopTimer: function() {
-                this.resetVariables(25, 0, false);
-                this.updateDom();
+                this.resetVariables(userTime(), 0, true);
             },
             toDoubleDigit: function(num) {
                 if (num < 10) {
@@ -183,6 +262,34 @@
         window.onload = function() {
             pomodoro.init();
         };
+
+        const countdownArea = document.querySelector('.countdown');
+        const numbersArea = document.querySelector('.numbers');
+        const resetBtn = document.querySelector('.reset');
+        let interval;
+        let count = 0;
+        const height = countdownArea.getBoundingClientRect().height;
+        createTimer();
+
+        resetBtn.addEventListener('click', createTimer);
+
+        function createTimer() {
+            clearInterval(interval);
+            count = 0;
+            numbersArea.style.transform = `translateY(0)`
+
+            interval = setInterval(() => {
+                count++;
+
+                const offset = height * count;
+                numbersArea.style.transform = `translateY(-${offset}px)`
+
+                if (count >= 10) {
+                    clearInterval(interval);
+                }
+            }, 1000)
+
+        }
     </script>
 </body>
 
